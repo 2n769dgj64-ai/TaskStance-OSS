@@ -1,0 +1,82 @@
+{
+  "schema_version": "2",
+  "benchmark_id": "yocto-queue-pr13-drain-undefined",
+  "mode": "taskstance",
+  "upstream_repository": "https://github.com/sindresorhus/yocto-queue",
+  "baseline_commit": "6f20a6fad9323285e9f7c04dd1232ccc5e931e7e",
+  "source_kind": "public_upstream",
+  "environment": {
+    "platform": "win32",
+    "node_version": "v24.19.0"
+  },
+  "measurements": {
+    "schema_version": "1",
+    "decision_source": "provider+policy",
+    "profile": {
+      "executor": "primary",
+      "model_tier": "balanced",
+      "reasoning_effort": "medium",
+      "context_budget": "small",
+      "test_depth": "targeted",
+      "review_depth": "targeted",
+      "parallel_safe": false,
+      "integration_strategy": "direct"
+    },
+    "judgment_calls": 1,
+    "initial_context_files": 2,
+    "initial_context_estimated_tokens": 803,
+    "mandatory_context_retained": true,
+    "requires_replan": false,
+    "executor": {
+      "schema_version": "1",
+      "adapter_id": "codex-cli-v1",
+      "status": "completed",
+      "reason": "turn_completed",
+      "exit_code": 0,
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "medium",
+      "event_count": 16,
+      "usage": {
+        "input_tokens": 91384,
+        "output_tokens": 1215
+      }
+    }
+  },
+  "escalation_status": "not_observed",
+  "duration_ms": 46604,
+  "verification": [
+    {
+      "id": "drain-yields-undefined",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 47
+    }
+  ],
+  "changed_paths": [
+    "index.js",
+    "test.js"
+  ],
+  "scope_conformant": true,
+  "failures": [],
+  "outcome": "passed",
+  "configuration": {
+    "executor_adapter": "codex",
+    "executor_config_ref": ".local/codex.json",
+    "taskstance_config_ref": "project.json",
+    "judgment_config_ref": ".local/judgment.json",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "manifest_sha256": "79cbb37fbd3fcb572a73e1edbae67c70482b2833cb6f4a3d1486d8b2318c6c3d",
+    "taskstance_config_sha256": "7c73bf002c702da1c8ca86e6b11b7abb8859f08ae702284d7ffa2461a7a6b41c",
+    "executor_config_sha256": "adb87d2d906a5ef375f1681795c383575c53a9ff91d8515620d25a39c3e425de",
+    "judgment_config_sha256": "ae2ece8c5b567a68ea410e8f0e5b376e8ddf18bc290eb1d3be12115607f868b3",
+    "taskstance_config_canonical_sha256": "64582b1bce8b86542a5c7b0b856e0a5f2c1e82d09e81b5123eccaaa373382cb7",
+    "executor_config_canonical_sha256": "97350b40c9b0cef18861edbfda43cb28f508e6ce13fb8f8a736fa2a6f24d10dc",
+    "judgment_config_canonical_sha256": "6060adf7af9115aeaa43d22c32fb84ee727dfedd401569c94be4fb9b2f37d7b6"
+  },
+  "change_evidence": {
+    "algorithm": "taskstance-change-evidence-v1",
+    "artifact_count": 2,
+    "sha256": "99dbfc9dbc4e167b03ccba71c6fc34124a281333c06fe0e0d3044548c46e2e75"
+  }
+}

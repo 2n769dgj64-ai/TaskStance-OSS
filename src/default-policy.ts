@@ -1,0 +1,87 @@
+import type { PolicyConfig } from "./policy.js";
+
+export const defaultPolicy: PolicyConfig = {
+  version: "1",
+  defaults: {
+    executor: "default",
+    model_tier: "balanced",
+    reasoning_effort: "medium",
+    context_budget: "small",
+    test_depth: "targeted",
+    review_depth: "targeted",
+    parallel_safe: true,
+    integration_strategy: "direct",
+  },
+  fallback: {
+    executor: "replan",
+    model_tier: "strong",
+    reasoning_effort: "high",
+    context_budget: "medium",
+    test_depth: "standard",
+    review_depth: "full",
+    parallel_safe: false,
+    integration_strategy: "replan",
+  },
+  rules: [
+    {
+      id: "docs-only-skip-provider",
+      priority: 10,
+      phase: "pre",
+      // Risk flags must reach the post-policy safety floors; docs_only never skips them.
+      when: { flags_all: ["docs_only"], flags_none: ["security_critical", "destructive"] },
+      set: {
+        executor: "default",
+        model_tier: "cheap",
+        reasoning_effort: "minimal",
+        context_budget: "tiny",
+        test_depth: "none",
+        review_depth: "none",
+        parallel_safe: true,
+        integration_strategy: "direct",
+      },
+      skip_provider: true,
+    },
+    {
+      id: "security-critical-floor",
+      priority: 100,
+      phase: "post",
+      when: { flags_all: ["security_critical"] },
+      set: {
+        model_tier: "strong",
+        reasoning_effort: "high",
+        test_depth: "full",
+        review_depth: "full",
+        parallel_safe: false,
+        integration_strategy: "staged",
+      },
+      skip_provider: false,
+    },
+    {
+      id: "destructive-floor",
+      priority: 110,
+      phase: "post",
+      when: { flags_all: ["destructive"] },
+      set: {
+        reasoning_effort: "high",
+        test_depth: "full",
+        review_depth: "full",
+        parallel_safe: false,
+        integration_strategy: "staged",
+      },
+      skip_provider: false,
+    },
+    {
+      id: "low-confidence-replan",
+      priority: 1000,
+      phase: "post",
+      when: { min_confidence_below: 0.7 },
+      set: {
+        executor: "replan",
+        review_depth: "full",
+        parallel_safe: false,
+        integration_strategy: "replan",
+      },
+      skip_provider: false,
+    },
+  ],
+};

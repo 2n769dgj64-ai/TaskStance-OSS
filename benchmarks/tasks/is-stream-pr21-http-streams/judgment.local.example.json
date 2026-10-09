@@ -1,0 +1,10 @@
+{
+  "version": "1",
+  "provider_id": "benchmark-fixed-control",
+  "executors": [
+    "primary",
+    "replan"
+  ],
+  "executable": "<absolute path to the current Node.js executable>",
+  "cli_entrypoint": "<absolute path to benchmarks/tools/fixed-judgment.mjs>"
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "executors": {
+    "primary": "Primary coding executor",
+    "replan": "Stop and replan instead of executing"
+  },
+  "default_executor": "primary",
+  "telemetry": "off"
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1",
+  "benchmark_id": "minimist-pr17-long-option-single-dash",
+  "upstream_repository": "https://github.com/minimistjs/minimist",
+  "baseline_commit": "ba92fe6ebbdc0431cca9a2ea8f27beb492f5e4ec",
+  "task": {
+    "data_classification": "engineering_non_sensitive",
+    "task_id": "minimist-pr17-long-option-single-dash",
+    "attempt_id": "a1",
+    "summary": "Fix long-option parsing so that a long option followed by a standalone dash (for example `--foo -`) takes the dash as its value, consistent with the existing short-option behavior, instead of leaving the dash as a positional argument. Preserve existing parsing behavior for other dash-prefixed values.",
+    "flags": {}
+  },
+  "initial_context_paths": [
+    "index.js",
+    "test/dash.js"
+  ],
+  "taskstance_config": "project.json",
+  "executor": {
+    "adapter": "codex",
+    "config": ".local/codex.json"
+  },
+  "judgment": {
+    "adapter": "process",
+    "config": ".local/judgment.json"
+  },
+  "verification": [
+    {
+      "id": "long-option-single-dash",
+      "executable": "node",
+      "args": [
+        "-e",
+        "try{const p=require(require('node:path').resolve('index.js'));const a=p(['--foo','-']);const s=p(['-n','-']);const b=p(['-b','-'],{boolean:'b'});const e=p(['--foo=-']);const o=p(['--foo','-x']);const ok=a.foo==='-'&&Array.isArray(a._)&&a._.length===0&&Object.keys(a).length===2&&s.n==='-'&&s._.length===0&&b.b===true&&b._.length===1&&b._[0]==='-'&&e.foo==='-'&&e._.length===0&&o.foo===true&&o.x===true&&o._.length===0;process.exitCode=ok?0:1}catch{process.exitCode=1}"
+      ],
+      "timeout_ms": 30000
+    }
+  ],
+  "allowed_changed_paths": [
+    "index.js",
+    "test/dash.js"
+  ],
+  "timeout_ms": 600000,
+  "notes": [
+    "Prepared, not executed. Code bug fix; no task flag is set, so the existing policy requires a judgment result and the Phase 2.4b fixed-control judgment is configured. It exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+    "Public historical task (minimist#17) used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+    "Verification is dependency-free Node.js; no upstream dependency installation is performed, and it was confirmed to fail on the untouched pinned baseline."
+  ]
+}

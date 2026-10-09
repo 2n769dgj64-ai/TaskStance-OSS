@@ -1,0 +1,74 @@
+{
+  "schema_version": "1",
+  "benchmark_id": "yoctocolors-pr26-bold-dim",
+  "mode": "taskstance",
+  "upstream_repository": "https://github.com/sindresorhus/yoctocolors",
+  "baseline_commit": "366d515357373a0d6c1494ca08d541f0f80ceb61",
+  "source_kind": "public_upstream",
+  "environment": {
+    "platform": "win32",
+    "node_version": "v24.19.0"
+  },
+  "configuration": {
+    "executor_adapter": "codex",
+    "executor_config_ref": ".local/codex.json",
+    "taskstance_config_ref": "project.json",
+    "judgment_config_ref": ".local/judgment.json",
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "medium",
+    "manifest_sha256": "ab1ec341832684586281c848ce001322b615a4a76162c92fb21682e2c1eed8ad",
+    "taskstance_config_sha256": "a2c9bb371c844389426e19e961393b1aec5dd6dbc1609dd93ecca224df6e1e95",
+    "executor_config_sha256": "00827c332e2dee88a5fcf5c86702fe2449ad403cbc690d6d91887674e9861af6",
+    "judgment_config_sha256": "9ba47d291be05e0d2900b6760a7542f88e047cb8552a2715f24b0765810fc9ee"
+  },
+  "measurements": {
+    "schema_version": "1",
+    "decision_source": "provider+policy",
+    "profile": {
+      "executor": "primary",
+      "model_tier": "balanced",
+      "reasoning_effort": "medium",
+      "context_budget": "small",
+      "test_depth": "targeted",
+      "review_depth": "targeted",
+      "parallel_safe": false,
+      "integration_strategy": "direct"
+    },
+    "judgment_calls": 1,
+    "initial_context_files": 2,
+    "initial_context_estimated_tokens": 1729,
+    "mandatory_context_retained": true,
+    "requires_replan": false,
+    "executor": {
+      "schema_version": "1",
+      "adapter_id": "codex-cli-v1",
+      "status": "completed",
+      "reason": "turn_completed",
+      "exit_code": 0,
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "medium",
+      "event_count": 20,
+      "usage": {
+        "input_tokens": 125418,
+        "output_tokens": 1604
+      }
+    }
+  },
+  "escalation_status": "not_observed",
+  "duration_ms": 50378,
+  "verification": [
+    {
+      "id": "nested-bold-dim-output",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 92
+    }
+  ],
+  "changed_paths": [
+    "base.js",
+    "test.js"
+  ],
+  "scope_conformant": true,
+  "failures": [],
+  "outcome": "passed"
+}

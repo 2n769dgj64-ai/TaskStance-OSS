@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "files": [
+    "src/core-index.ts",
+    "src/cli.ts",
+    "src/benchmark/cli.ts"
+  ],
+  "include": []
+}

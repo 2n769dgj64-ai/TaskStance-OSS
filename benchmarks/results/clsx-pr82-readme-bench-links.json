@@ -1,0 +1,73 @@
+{
+  "schema_version": "1",
+  "benchmark_id": "clsx-pr82-readme-bench-links",
+  "mode": "taskstance",
+  "upstream_repository": "https://github.com/lukeed/clsx",
+  "baseline_commit": "4c9a55df075eb96d968e09e56cfa3ba57a5bbdca",
+  "source_kind": "public_upstream",
+  "environment": {
+    "platform": "win32",
+    "node_version": "v24.19.0"
+  },
+  "configuration": {
+    "executor_adapter": "codex",
+    "executor_config_ref": ".local/codex.json",
+    "taskstance_config_ref": "project.json",
+    "judgment_config_ref": null,
+    "model": "gpt-6.1-sol",
+    "reasoning_effort": "low",
+    "manifest_sha256": "425cb3a9b16fa5e0071dda25385f40da4a39fcf47d63a30f67c9e978f8a76495",
+    "taskstance_config_sha256": "7c73bf002c702da1c8ca86e6b11b7abb8859f08ae702284d7ffa2461a7a6b41c",
+    "executor_config_sha256": "00827c332e2dee88a5fcf5c86702fe2449ad403cbc690d6d91887674e9861af6",
+    "judgment_config_sha256": null
+  },
+  "measurements": {
+    "schema_version": "1",
+    "decision_source": "deterministic",
+    "profile": {
+      "executor": "primary",
+      "model_tier": "cheap",
+      "reasoning_effort": "minimal",
+      "context_budget": "tiny",
+      "test_depth": "none",
+      "review_depth": "none",
+      "parallel_safe": true,
+      "integration_strategy": "direct"
+    },
+    "judgment_calls": 0,
+    "initial_context_files": 1,
+    "initial_context_estimated_tokens": 741,
+    "mandatory_context_retained": true,
+    "requires_replan": false,
+    "executor": {
+      "schema_version": "1",
+      "adapter_id": "codex-cli-v1",
+      "status": "completed",
+      "reason": "turn_completed",
+      "exit_code": 0,
+      "model": "gpt-6.1-sol",
+      "reasoning_effort": "low",
+      "event_count": 9,
+      "usage": {
+        "input_tokens": 51286,
+        "output_tokens": 219
+      }
+    }
+  },
+  "escalation_status": "not_observed",
+  "duration_ms": 18557,
+  "verification": [
+    {
+      "id": "readme-bench-links",
+      "status": "passed",
+      "exit_code": 0,
+      "duration_ms": 52
+    }
+  ],
+  "changed_paths": [
+    "readme.md"
+  ],
+  "scope_conformant": true,
+  "failures": [],
+  "outcome": "passed"
+}

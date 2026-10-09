@@ -1,0 +1,13 @@
+{
+  "version": "1",
+  "executor": "primary",
+  "models": {
+    "cheap": "gpt-6.1-sol",
+    "balanced": "gpt-6.1-sol",
+    "strong": "gpt-6.1-sol",
+    "max": "gpt-6.1-sol"
+  },
+  "cli_entrypoint": "<absolute path to the installed @openai/codex/bin/codex.js>",
+  "timeout_ms": 300000,
+  "max_output_bytes": 1000000
+}

@@ -1,0 +1,48 @@
+{
+  "schema_version": "1",
+  "benchmark_id": "is-stream-pr21-http-streams",
+  "upstream_repository": "https://github.com/sindresorhus/is-stream",
+  "baseline_commit": "6913e344ab2dd63041bb7c03095876ce5a7e0a8b",
+  "task": {
+    "data_classification": "engineering_non_sensitive",
+    "task_id": "is-stream-pr21-http-streams",
+    "attempt_id": "a1",
+    "summary": "Update runtime stream detection so that Node.js HTTP stream objects that follow the documented stream API are recognized correctly: an `http.OutgoingMessage` must be recognized as a writable stream and an `http.IncomingMessage` as a readable stream. Detection of ordinary Node.js streams and rejection of non-stream values must remain correct. This task covers runtime detection only, not documentation or type declarations.",
+    "flags": {}
+  },
+  "initial_context_paths": [
+    "index.js",
+    "test.js"
+  ],
+  "taskstance_config": "project.json",
+  "executor": {
+    "adapter": "codex",
+    "config": ".local/codex.json"
+  },
+  "judgment": {
+    "adapter": "process",
+    "config": ".local/judgment.json"
+  },
+  "verification": [
+    {
+      "id": "http-stream-detection",
+      "executable": "node",
+      "args": [
+        "--input-type=module",
+        "-e",
+        "try{const{pathToFileURL}=await import('node:url');const{resolve}=await import('node:path');const s=await import(pathToFileURL(resolve('index.js')).href);const{Readable,Writable,Duplex,Transform,PassThrough}=await import('node:stream');const{OutgoingMessage,IncomingMessage}=await import('node:http');const{Socket}=await import('node:net');const w=new OutgoingMessage();const r=new IncomingMessage(new Socket());const ok=s.isWritableStream(w)===true&&s.isReadableStream(r)===true&&s.isReadableStream(new Readable({read(){}}))===true&&s.isWritableStream(new Readable({read(){}}))===false&&s.isWritableStream(new Writable({write(c,e,n){n()}}))===true&&s.isReadableStream(new Writable({write(c,e,n){n()}}))===false&&s.isDuplexStream(new Duplex({read(){},write(c,e,n){n()}}))===true&&s.isTransformStream(new Transform({transform(c,e,n){n()}}))===true&&s.isTransformStream(new PassThrough())===true&&s.isStream({})===false&&s.isStream(null)===false&&s.isWritableStream({})===false&&s.isReadableStream({})===false;process.exitCode=ok?0:1}catch{process.exitCode=1}"
+      ],
+      "timeout_ms": 30000
+    }
+  ],
+  "allowed_changed_paths": [
+    "index.js",
+    "test.js"
+  ],
+  "timeout_ms": 600000,
+  "notes": [
+    "Prepared, not executed. Code bug fix; no task flag is set, so the existing policy requires a judgment result and the Phase 2.4b fixed-control judgment is configured. It exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+    "Public historical task (is-stream#21) used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+    "Verification is dependency-free Node.js; no upstream dependency installation is performed, and it was confirmed to fail on the untouched pinned baseline."
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "name": "taskstance",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "description": "Policy-first execution decision and context-control core for AI coding agents.",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/core-index.js",
+  "types": "./dist/core-index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/core-index.d.ts",
+      "import": "./dist/core-index.js"
+    },
+    "./integrations/codex": {
+      "types": "./dist/integrations/codex.d.ts",
+      "import": "./dist/integrations/codex.js"
+    },
+    "./integrations/local-context": {
+      "types": "./dist/integrations/local-context.d.ts",
+      "import": "./dist/integrations/local-context.js"
+    },
+    "./integrations/judgment-process": {
+      "types": "./dist/integrations/judgment-process.d.ts",
+      "import": "./dist/integrations/judgment-process.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "examples/codex",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": [
+    "ai-agents",
+    "execution-policy",
+    "mcp",
+    "context-pruning",
+    "coding-agents"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "cli": "node ./dist/cli.js",
+    "demo:codex": "node examples/codex/run-demo.mjs",
+    "benchmark": "node dist/benchmark/cli.js",
+    "audit:prelaunch": "node scripts/prelaunch-audit.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server": "^2.3.0",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
+  },
+  "bin": {
+    "taskstance": "./dist/cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2n769dgj64-ai/TaskStance-OSS.git"
+  },
+  "homepage": "https://github.com/2n769dgj64-ai/TaskStance-OSS#readme",
+  "bugs": {
+    "url": "https://github.com/2n769dgj64-ai/TaskStance-OSS/issues"
+  }
+}

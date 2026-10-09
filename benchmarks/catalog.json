@@ -1,0 +1,239 @@
+{
+  "schema_version": "1",
+  "tasks": [
+    {
+      "schema_version": "1",
+      "benchmark_id": "clsx-pr82-readme-bench-links",
+      "upstream_repository": "https://github.com/lukeed/clsx",
+      "baseline_commit": "4c9a55df075eb96d968e09e56cfa3ba57a5bbdca",
+      "task": {
+        "data_classification": "engineering_non_sensitive",
+        "task_id": "clsx-pr82-readme-bench-links",
+        "attempt_id": "a1",
+        "summary": "Fix the README benchmark links so they resolve correctly when viewed on GitHub. Both benchmark links should use repository-relative bench paths instead of root-relative /bench paths.",
+        "flags": {
+          "docs_only": true
+        }
+      },
+      "initial_context_paths": [
+        "readme.md"
+      ],
+      "taskstance_config": "project.json",
+      "executor": {
+        "adapter": "codex",
+        "config": ".local/codex.json"
+      },
+      "verification": [
+        {
+          "id": "readme-bench-links",
+          "executable": "node",
+          "args": [
+            "-e",
+            "try{const t=require('node:fs').readFileSync('readme.md','utf8');const ok=t.includes('[faster](bench)')&&t.includes('[`bench`](bench)')&&!t.includes('[faster](/bench)')&&!t.includes('[`bench`](/bench)');process.exitCode=ok?0:1}catch{process.exitCode=1}"
+          ],
+          "timeout_ms": 30000
+        }
+      ],
+      "allowed_changed_paths": [
+        "readme.md"
+      ],
+      "timeout_ms": 600000,
+      "notes": [
+        "Pilot A (docs-only). docs_only skips judgment through deterministic pre-policy; no judgment process is configured.",
+        "Public historical task used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+        "Verification is dependency-free Node.js; no upstream dependency installation is performed."
+      ]
+    },
+    {
+      "schema_version": "1",
+      "benchmark_id": "yoctocolors-pr26-bold-dim",
+      "upstream_repository": "https://github.com/sindresorhus/yoctocolors",
+      "baseline_commit": "366d515357373a0d6c1494ca08d541f0f80ceb61",
+      "task": {
+        "data_classification": "engineering_non_sensitive",
+        "task_id": "yoctocolors-pr26-bold-dim",
+        "attempt_id": "a1",
+        "summary": "Fix nested bold and dim formatting so closing a dim segment inside an outer bold segment resumes the surrounding bold style instead of dropping it. Preserve existing nested-color behavior.",
+        "flags": {}
+      },
+      "initial_context_paths": [
+        "base.js",
+        "test.js"
+      ],
+      "taskstance_config": "project.json",
+      "executor": {
+        "adapter": "codex",
+        "config": ".local/codex.json"
+      },
+      "judgment": {
+        "adapter": "process",
+        "config": ".local/judgment.json"
+      },
+      "verification": [
+        {
+          "id": "nested-bold-dim-output",
+          "executable": "node",
+          "args": [
+            "--input-type=module",
+            "-e",
+            "process.env.FORCE_COLOR='1';try{const{pathToFileURL}=await import('node:url');const{resolve}=await import('node:path');const colors=await import(pathToFileURL(resolve('index.js')).href);const actual=`Hello ${colors.dim('world')}, ${colors.bold(`are ${colors.dim('you')} ok`)}?`;const expected='Hello \\u001B[2mworld\\u001B[22m, \\u001B[1mare \\u001B[2myou\\u001B[22m\\u001B[1m ok\\u001B[22m?';process.exitCode=actual===expected?0:1}catch{process.exitCode=1}"
+          ],
+          "timeout_ms": 30000
+        }
+      ],
+      "allowed_changed_paths": [
+        "base.js",
+        "test.js"
+      ],
+      "timeout_ms": 600000,
+      "notes": [
+        "Pilot B (code bug fix). The fixed-control judgment exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+        "Public historical task used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+        "Verification is dependency-free Node.js; no upstream dependency installation is performed."
+      ]
+    },
+    {
+      "schema_version": "1",
+      "benchmark_id": "minimist-pr17-long-option-single-dash",
+      "upstream_repository": "https://github.com/minimistjs/minimist",
+      "baseline_commit": "ba92fe6ebbdc0431cca9a2ea8f27beb492f5e4ec",
+      "task": {
+        "data_classification": "engineering_non_sensitive",
+        "task_id": "minimist-pr17-long-option-single-dash",
+        "attempt_id": "a1",
+        "summary": "Fix long-option parsing so that a long option followed by a standalone dash (for example `--foo -`) takes the dash as its value, consistent with the existing short-option behavior, instead of leaving the dash as a positional argument. Preserve existing parsing behavior for other dash-prefixed values.",
+        "flags": {}
+      },
+      "initial_context_paths": [
+        "index.js",
+        "test/dash.js"
+      ],
+      "taskstance_config": "project.json",
+      "executor": {
+        "adapter": "codex",
+        "config": ".local/codex.json"
+      },
+      "judgment": {
+        "adapter": "process",
+        "config": ".local/judgment.json"
+      },
+      "verification": [
+        {
+          "id": "long-option-single-dash",
+          "executable": "node",
+          "args": [
+            "-e",
+            "try{const p=require(require('node:path').resolve('index.js'));const a=p(['--foo','-']);const s=p(['-n','-']);const b=p(['-b','-'],{boolean:'b'});const e=p(['--foo=-']);const o=p(['--foo','-x']);const ok=a.foo==='-'&&Array.isArray(a._)&&a._.length===0&&Object.keys(a).length===2&&s.n==='-'&&s._.length===0&&b.b===true&&b._.length===1&&b._[0]==='-'&&e.foo==='-'&&e._.length===0&&o.foo===true&&o.x===true&&o._.length===0;process.exitCode=ok?0:1}catch{process.exitCode=1}"
+          ],
+          "timeout_ms": 30000
+        }
+      ],
+      "allowed_changed_paths": [
+        "index.js",
+        "test/dash.js"
+      ],
+      "timeout_ms": 600000,
+      "notes": [
+        "Prepared, not executed. Code bug fix; no task flag is set, so the existing policy requires a judgment result and the Phase 2.4b fixed-control judgment is configured. It exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+        "Public historical task (minimist#17) used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+        "Verification is dependency-free Node.js; no upstream dependency installation is performed, and it was confirmed to fail on the untouched pinned baseline."
+      ]
+    },
+    {
+      "schema_version": "1",
+      "benchmark_id": "yocto-queue-pr13-drain-undefined",
+      "upstream_repository": "https://github.com/sindresorhus/yocto-queue",
+      "baseline_commit": "6f20a6fad9323285e9f7c04dd1232ccc5e931e7e",
+      "task": {
+        "data_classification": "engineering_non_sensitive",
+        "task_id": "yocto-queue-pr13-drain-undefined",
+        "attempt_id": "a1",
+        "summary": "Fix `.drain()` so that an `undefined` value stored in the queue is yielded like any other queued value and does not end draining early. After draining, every element that followed the `undefined` value must also have been yielded and the queue must be empty.",
+        "flags": {}
+      },
+      "initial_context_paths": [
+        "index.js",
+        "test.js"
+      ],
+      "taskstance_config": "project.json",
+      "executor": {
+        "adapter": "codex",
+        "config": ".local/codex.json"
+      },
+      "judgment": {
+        "adapter": "process",
+        "config": ".local/judgment.json"
+      },
+      "verification": [
+        {
+          "id": "drain-yields-undefined",
+          "executable": "node",
+          "args": [
+            "--input-type=module",
+            "-e",
+            "try{const{pathToFileURL}=await import('node:url');const{resolve}=await import('node:path');const Queue=(await import(pathToFileURL(resolve('index.js')).href)).default;const q=new Queue();q.enqueue('first');q.enqueue(undefined);q.enqueue('last');const out=[...q.drain()];const ok=out.length===3&&out[0]==='first'&&out[1]===undefined&&out[2]==='last'&&q.size===0&&[...q].length===0;process.exitCode=ok?0:1}catch{process.exitCode=1}"
+          ],
+          "timeout_ms": 30000
+        }
+      ],
+      "allowed_changed_paths": [
+        "index.js",
+        "test.js"
+      ],
+      "timeout_ms": 600000,
+      "notes": [
+        "Prepared, not executed. Code bug fix; no task flag is set, so the existing policy requires a judgment result and the Phase 2.4b fixed-control judgment is configured. It exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+        "Public historical task (yocto-queue#13) used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+        "Verification is dependency-free Node.js; no upstream dependency installation is performed, and it was confirmed to fail on the untouched pinned baseline."
+      ]
+    },
+    {
+      "schema_version": "1",
+      "benchmark_id": "is-stream-pr21-http-streams",
+      "upstream_repository": "https://github.com/sindresorhus/is-stream",
+      "baseline_commit": "6913e344ab2dd63041bb7c03095876ce5a7e0a8b",
+      "task": {
+        "data_classification": "engineering_non_sensitive",
+        "task_id": "is-stream-pr21-http-streams",
+        "attempt_id": "a1",
+        "summary": "Update runtime stream detection so that Node.js HTTP stream objects that follow the documented stream API are recognized correctly: an `http.OutgoingMessage` must be recognized as a writable stream and an `http.IncomingMessage` as a readable stream. Detection of ordinary Node.js streams and rejection of non-stream values must remain correct. This task covers runtime detection only, not documentation or type declarations.",
+        "flags": {}
+      },
+      "initial_context_paths": [
+        "index.js",
+        "test.js"
+      ],
+      "taskstance_config": "project.json",
+      "executor": {
+        "adapter": "codex",
+        "config": ".local/codex.json"
+      },
+      "judgment": {
+        "adapter": "process",
+        "config": ".local/judgment.json"
+      },
+      "verification": [
+        {
+          "id": "http-stream-detection",
+          "executable": "node",
+          "args": [
+            "--input-type=module",
+            "-e",
+            "try{const{pathToFileURL}=await import('node:url');const{resolve}=await import('node:path');const s=await import(pathToFileURL(resolve('index.js')).href);const{Readable,Writable,Duplex,Transform,PassThrough}=await import('node:stream');const{OutgoingMessage,IncomingMessage}=await import('node:http');const{Socket}=await import('node:net');const w=new OutgoingMessage();const r=new IncomingMessage(new Socket());const ok=s.isWritableStream(w)===true&&s.isReadableStream(r)===true&&s.isReadableStream(new Readable({read(){}}))===true&&s.isWritableStream(new Readable({read(){}}))===false&&s.isWritableStream(new Writable({write(c,e,n){n()}}))===true&&s.isReadableStream(new Writable({write(c,e,n){n()}}))===false&&s.isDuplexStream(new Duplex({read(){},write(c,e,n){n()}}))===true&&s.isTransformStream(new Transform({transform(c,e,n){n()}}))===true&&s.isTransformStream(new PassThrough())===true&&s.isStream({})===false&&s.isStream(null)===false&&s.isWritableStream({})===false&&s.isReadableStream({})===false;process.exitCode=ok?0:1}catch{process.exitCode=1}"
+          ],
+          "timeout_ms": 30000
+        }
+      ],
+      "allowed_changed_paths": [
+        "index.js",
+        "test.js"
+      ],
+      "timeout_ms": 600000,
+      "notes": [
+        "Prepared, not executed. Code bug fix; no task flag is set, so the existing policy requires a judgment result and the Phase 2.4b fixed-control judgment is configured. It exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+        "Public historical task (is-stream#21) used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+        "Verification is dependency-free Node.js; no upstream dependency installation is performed, and it was confirmed to fail on the untouched pinned baseline."
+      ]
+    }
+  ]
+}

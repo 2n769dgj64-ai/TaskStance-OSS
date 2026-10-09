@@ -1,0 +1,48 @@
+{
+  "schema_version": "1",
+  "benchmark_id": "yocto-queue-pr13-drain-undefined",
+  "upstream_repository": "https://github.com/sindresorhus/yocto-queue",
+  "baseline_commit": "6f20a6fad9323285e9f7c04dd1232ccc5e931e7e",
+  "task": {
+    "data_classification": "engineering_non_sensitive",
+    "task_id": "yocto-queue-pr13-drain-undefined",
+    "attempt_id": "a1",
+    "summary": "Fix `.drain()` so that an `undefined` value stored in the queue is yielded like any other queued value and does not end draining early. After draining, every element that followed the `undefined` value must also have been yielded and the queue must be empty.",
+    "flags": {}
+  },
+  "initial_context_paths": [
+    "index.js",
+    "test.js"
+  ],
+  "taskstance_config": "project.json",
+  "executor": {
+    "adapter": "codex",
+    "config": ".local/codex.json"
+  },
+  "judgment": {
+    "adapter": "process",
+    "config": ".local/judgment.json"
+  },
+  "verification": [
+    {
+      "id": "drain-yields-undefined",
+      "executable": "node",
+      "args": [
+        "--input-type=module",
+        "-e",
+        "try{const{pathToFileURL}=await import('node:url');const{resolve}=await import('node:path');const Queue=(await import(pathToFileURL(resolve('index.js')).href)).default;const q=new Queue();q.enqueue('first');q.enqueue(undefined);q.enqueue('last');const out=[...q.drain()];const ok=out.length===3&&out[0]==='first'&&out[1]===undefined&&out[2]==='last'&&q.size===0&&[...q].length===0;process.exitCode=ok?0:1}catch{process.exitCode=1}"
+      ],
+      "timeout_ms": 30000
+    }
+  ],
+  "allowed_changed_paths": [
+    "index.js",
+    "test.js"
+  ],
+  "timeout_ms": 600000,
+  "notes": [
+    "Prepared, not executed. Code bug fix; no task flag is set, so the existing policy requires a judgment result and the Phase 2.4b fixed-control judgment is configured. It exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+    "Public historical task (yocto-queue#13) used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+    "Verification is dependency-free Node.js; no upstream dependency installation is performed, and it was confirmed to fail on the untouched pinned baseline."
+  ]
+}

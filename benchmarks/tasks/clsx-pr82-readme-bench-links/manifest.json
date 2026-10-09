@@ -1,0 +1,43 @@
+{
+  "schema_version": "1",
+  "benchmark_id": "clsx-pr82-readme-bench-links",
+  "upstream_repository": "https://github.com/lukeed/clsx",
+  "baseline_commit": "4c9a55df075eb96d968e09e56cfa3ba57a5bbdca",
+  "task": {
+    "data_classification": "engineering_non_sensitive",
+    "task_id": "clsx-pr82-readme-bench-links",
+    "attempt_id": "a1",
+    "summary": "Fix the README benchmark links so they resolve correctly when viewed on GitHub. Both benchmark links should use repository-relative bench paths instead of root-relative /bench paths.",
+    "flags": {
+      "docs_only": true
+    }
+  },
+  "initial_context_paths": [
+    "readme.md"
+  ],
+  "taskstance_config": "project.json",
+  "executor": {
+    "adapter": "codex",
+    "config": ".local/codex.json"
+  },
+  "verification": [
+    {
+      "id": "readme-bench-links",
+      "executable": "node",
+      "args": [
+        "-e",
+        "try{const t=require('node:fs').readFileSync('readme.md','utf8');const ok=t.includes('[faster](bench)')&&t.includes('[`bench`](bench)')&&!t.includes('[faster](/bench)')&&!t.includes('[`bench`](/bench)');process.exitCode=ok?0:1}catch{process.exitCode=1}"
+      ],
+      "timeout_ms": 30000
+    }
+  ],
+  "allowed_changed_paths": [
+    "readme.md"
+  ],
+  "timeout_ms": 600000,
+  "notes": [
+    "Pilot A (docs-only). docs_only skips judgment through deterministic pre-policy; no judgment process is configured.",
+    "Public historical task used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+    "Verification is dependency-free Node.js; no upstream dependency installation is performed."
+  ]
+}

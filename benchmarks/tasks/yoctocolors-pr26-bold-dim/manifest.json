@@ -1,0 +1,48 @@
+{
+  "schema_version": "1",
+  "benchmark_id": "yoctocolors-pr26-bold-dim",
+  "upstream_repository": "https://github.com/sindresorhus/yoctocolors",
+  "baseline_commit": "366d515357373a0d6c1494ca08d541f0f80ceb61",
+  "task": {
+    "data_classification": "engineering_non_sensitive",
+    "task_id": "yoctocolors-pr26-bold-dim",
+    "attempt_id": "a1",
+    "summary": "Fix nested bold and dim formatting so closing a dim segment inside an outer bold segment resumes the surrounding bold style instead of dropping it. Preserve existing nested-color behavior.",
+    "flags": {}
+  },
+  "initial_context_paths": [
+    "base.js",
+    "test.js"
+  ],
+  "taskstance_config": "project.json",
+  "executor": {
+    "adapter": "codex",
+    "config": ".local/codex.json"
+  },
+  "judgment": {
+    "adapter": "process",
+    "config": ".local/judgment.json"
+  },
+  "verification": [
+    {
+      "id": "nested-bold-dim-output",
+      "executable": "node",
+      "args": [
+        "--input-type=module",
+        "-e",
+        "process.env.FORCE_COLOR='1';try{const{pathToFileURL}=await import('node:url');const{resolve}=await import('node:path');const colors=await import(pathToFileURL(resolve('index.js')).href);const actual=`Hello ${colors.dim('world')}, ${colors.bold(`are ${colors.dim('you')} ok`)}?`;const expected='Hello \\u001B[2mworld\\u001B[22m, \\u001B[1mare \\u001B[2myou\\u001B[22m\\u001B[1m ok\\u001B[22m?';process.exitCode=actual===expected?0:1}catch{process.exitCode=1}"
+      ],
+      "timeout_ms": 30000
+    }
+  ],
+  "allowed_changed_paths": [
+    "base.js",
+    "test.js"
+  ],
+  "timeout_ms": 600000,
+  "notes": [
+    "Pilot B (code bug fix). The fixed-control judgment exercises the real external-process judgment boundary and deterministic policy path. It is not an evaluation of adaptive judgment quality.",
+    "Public historical task used only for task selection; the historical patch is not supplied to the executor, judgment process or verification.",
+    "Verification is dependency-free Node.js; no upstream dependency installation is performed."
+  ]
+}
