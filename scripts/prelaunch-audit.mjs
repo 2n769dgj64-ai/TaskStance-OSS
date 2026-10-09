@@ -14,6 +14,7 @@ const EXPECTED_PACKAGE_FILES = [
   "dist",
   "docs",
   "examples/codex",
+  "examples/judgment",
   "README.md",
   "LICENSE",
 ];
@@ -36,7 +37,7 @@ const APPROVED_RESULTS = {
   "benchmarks/results/yoctocolors-pr26-bold-dim.json": ["c25674fe91f77463a28219047d643caf33506c7f213bd4d1c202ffa4916e4b5b", "e46283ce7ca113858d2039f6b0131406833900a62894c1ff192a2e6fa171e66f"],
 };
 const REQUIRED_IGNORES = [".env*", "*.local.json", ".local/", ".npmrc", ".netrc", ".git-credentials", "id_rsa", "id_ed25519", "*.crt", "*.cer", "*.pem", "*.key", "*.p12", "*.pfx", "*.jks", "*.keystore", "credentials*", "secrets*", "eval-run*/", "evaluation/results/", "evaluation-results/", "execution-report.json", "preflight.json", "*.evaluation-result.json", "/benchmarks/results/*", ...Object.keys(APPROVED_RESULTS).map(path => `!/${path}`)];
-const PACKAGED_TEXT_FILES = new Set(["docs/phase2-2.md", "docs/phase2-3.md", "docs/phase2-7-prelaunch-audit.md", "examples/codex/run-demo.mjs"]);
+const PACKAGED_TEXT_FILES = new Set(["docs/phase2-2.md", "docs/phase2-3.md", "docs/phase2-7-prelaunch-audit.md", "docs/bring-your-own-judgment-provider.md", "examples/codex/run-demo.mjs", "examples/judgment/reference-bridge.mjs", "examples/judgment/task.json", "examples/judgment/process.example.json"]);
 const FORBIDDEN_LIFECYCLE_SCRIPTS = new Set([
   "preinstall", "install", "postinstall", "preprepare", "prepare", "postprepare",
   "prepack", "postpack", "prepublish", "prepublishOnly", "publish", "postpublish",
@@ -177,7 +178,7 @@ async function auditRepository(rootPath = defaultRoot) {
       failures.push(failure("PKG003", path, "unexpected file in package scope"));
     }
   }
-  for (const path of ["dist", "docs", "examples/codex"]) await checkPackageDirectory(path);
+  for (const path of ["dist", "docs", "examples/codex", "examples/judgment"]) await checkPackageDirectory(path);
 
   const repositoryUrl = packageJson.repository?.url;
   if (repositoryUrl !== "git+https://github.com/2n769dgj64-ai/TaskStance-OSS.git" ||

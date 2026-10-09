@@ -1,0 +1,7 @@
+{
+  "data_classification": "engineering_non_sensitive",
+  "task_id": "provider-example",
+  "attempt_id": "a1",
+  "summary": "Refactor a validation helper while preserving behavior.",
+  "flags": {}
+}

@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "provider_id": "reference-mock",
+  "executors": ["primary", "replan"],
+  "executable": "node",
+  "cli_entrypoint": "/absolute/path/to/TaskStance-OSS/examples/judgment/reference-bridge.mjs",
+  "args": ["valid"],
+  "max_output_bytes": 262144
+}
