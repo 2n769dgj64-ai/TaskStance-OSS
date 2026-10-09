@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "provider_id": "lm-studio-local-chat",
+  "executors": ["primary", "replan"],
+  "executable": "node",
+  "cli_entrypoint": "C:/ABSOLUTE/PATH/TaskStance-OSS/examples/judgment/local-http-bridge.mjs",
+  "args": ["http://127.0.0.1:1234/v1/chat/completions", "REPLACE_WITH_LOADED_LOCAL_MODEL_ID"],
+  "max_output_bytes": 262144
+}
