@@ -38,7 +38,7 @@ The response has `schema_version: "1"`, `available`, and optional `decisions`. E
 
 The [reference bridge](../examples/judgment/reference-bridge.mjs) reuses the exported process request/response schemas. It explicitly maps every categorical field and probability key, preserves probability and confidence values and optional fields, and rejects unknown labels or choices outside the advertised domains. Its source labels and mock response are illustrative, **not a documented JEV format**.
 
-No verified JEV endpoints, SDK, authentication flow, or response protocol are present in this repository. To connect real JEV, supply public protocol documentation, an authorized credential mechanism compatible with the process boundary, and a verified response-to-Core mapping. Replace the mock call with one documented request, respecting cancellation and the parent deadline. Do not infer URLs or authentication from this example. Real JEV connectivity is not implemented or tested here.
+No JEV SDK, authentication flow, or verified JEV response mapping is integrated in this repository. To connect real JEV, supply public protocol documentation, an authorized credential mechanism compatible with the process boundary, and a verified response-to-Core mapping. Replace the mock call with one documented request, respecting cancellation and the parent deadline. Do not infer URLs or authentication from this example. Real JEV connectivity is not implemented or tested here.
 
 Embedding applications can instead implement the existing `JudgmentProvider.decide(task, signal?)` and inject it through `createDecisionRuntime`. Return a Core `RawJudgment` with `schema_version: "2"` and a configured provider identity, and honor the supplied signal. The CLI process wire version remains `1`; its adapter performs that conversion. Context scoring is a separate interface and remains unavailable in this CLI integration.
 
@@ -50,4 +50,52 @@ Core keeps its existing 30-second default deadline and configurable bounded time
 
 Only configure trusted executables. The child starts in the OS temporary directory with an empty environment, `shell: false`, discarded stderr, and bounded stdout. This prevents inherited credentials but is not an OS sandbox: a trusted bridge still has the user's filesystem/network permissions. Do not weaken that environment boundary to make an SDK work. Credentials in environment variables are unavailable to the process integration; credentials in arguments, task text, JSON config, or logs are unsafe. Real connectivity needs a separately designed, least-privilege credential mechanism; none is added here.
 
-Use nonsensitive engineering summaries only; caller-authored text is not redacted. Do not emit prompts, secrets, or raw provider errors. Keep local configuration out of source control (`*.local.json` is ignored). This example makes no network calls and provides no evidence of token or cost savings.
+Use nonsensitive engineering summaries only; caller-authored text is not redacted. Do not emit prompts, secrets, or raw provider errors. Keep local configuration out of source control (`*.local.json` is ignored). The synthetic reference example makes no network calls. The explicitly selected local HTTP bridge below performs local inference. Neither provides evidence of token or cost savings.
+
+## Opt in to a real local chat model (Phase 2)
+
+The [local HTTP bridge](../examples/judgment/local-http-bridge.mjs) is a small Node.js 22 adapter for `POST /v1/chat/completions`. It uses the same process provider, wire schemas, CLI selection, deadlines, cancellation, and deterministic policy as the reference bridge. Core and offline defaults are unchanged. Ordinary chat models provide advisory judgment; they are not equivalent to specialized decision models such as JEV or its native decision capabilities. Real JEV-compatible System One integration is outside this phase.
+
+Configure a trusted, already installed server with authentication disabled and an already installed **local** model that supports structured output. Bind it to loopback. Do not select a cloud model, remote worker, tunnel, or forwarding backend. No server installation, model download, discovery, credentials, or authentication is performed by TaskStance. The bridge cannot verify how a trusted local server internally processes or forwards a request; loopback validation bounds its own network destination only.
+
+[LM Studio configuration](../examples/judgment/lm-studio.example.json) uses `http://127.0.0.1:1234/v1/chat/completions` and the exact loaded model identifier. [Ollama configuration](../examples/judgment/ollama.example.json) uses `http://127.0.0.1:11434/v1/chat/completions` and the exact installed local model tag. Both examples require replacing the absolute bridge path and model placeholder. Executor choices must exist in the project configuration. The bridge receives exactly two arguments: endpoint and model identifier.
+
+The documented compatibility target is `response_format: { type: "json_schema", json_schema: { name, strict: true, schema } }`, with nonstreaming output in `choices[0].message.content`. See [LM Studio structured output](https://lmstudio.ai/docs/developer/openai-compat/structured-output), [Ollama OpenAI compatibility](https://docs.ollama.com/api/openai-compatibility), and [Ollama structured outputs](https://docs.ollama.com/capabilities/structured-outputs). Server versions, model capabilities, and supported JSON Schema subsets vary. The schema is derived from TaskStance's existing response contract, including optional decisions. If the server rejects that schema or cannot supply a valid result, TaskStance falls back; there is no downgrade, repair prompt, or replacement model.
+
+### Explicit local inference smoke test
+
+This optional test makes one real local inference request. It is not part of the automated tests. Start your existing local server and load your chosen local model yourself. From the built checkout, create the project configuration with `node dist/cli.js init` if it does not already exist. Then generate `judgment.local.json` using your chosen exact model identifier:
+
+```sh
+node --input-type=module -e "import {writeFileSync} from 'node:fs'; import {resolve} from 'node:path'; writeFileSync('judgment.local.json', JSON.stringify({version:'1',provider_id:'local-chat',executors:['primary','replan'],executable:process.execPath,cli_entrypoint:resolve('examples/judgment/local-http-bridge.mjs'),args:['http://127.0.0.1:1234/v1/chat/completions','REPLACE_WITH_LOADED_LOCAL_MODEL_ID'],max_output_bytes:262144},null,2));"
+node dist/cli.js plan --task examples/judgment/task.json --judgment process --judgment-config judgment.local.json
+```
+
+For Ollama, change the endpoint port to `11434` and replace the model argument with your installed local tag. A complete, sufficiently confident valid response yields `decision_source: "provider+policy"`; unavailable, incomplete, unsupported, or low-confidence output yields conservative `replan`. Deterministic policy remains authoritative. A valid response is evidence of protocol compatibility only, not decision quality or confidence calibration. Model-reported confidence and `probability_true` are uncalibrated advisory information, **not verified probabilities**. Missing fields stay missing; the bridge never synthesizes confidence, probabilities, or decisions.
+
+To run the same task offline, omit the opt-in flags:
+
+```sh
+node dist/cli.js plan --task examples/judgment/task.json
+```
+
+Offline mode makes zero HTTP calls even when a local server is running.
+
+### Local bridge boundaries and deterministic tests
+
+Only canonical `http://127.0.0.1:<port>/v1/chat/completions` and `http://[::1]:<port>/v1/chat/completions` are accepted. Ports must be 1–65535. DNS names (including `localhost`), alternate IP spellings, other loopback addresses, remote addresses, credentials, query strings, fragments, and alternate paths are rejected. Node's built-in `http` connects directly, without proxies or redirects. There are no API keys, authorization headers, retries, automatic model substitution, streaming, or tools.
+
+One invocation performs at most one HTTP inference request. The bridge caps stdin and the serialized HTTP request at 65536 bytes, HTTP response bytes at 262144, headers at 8192, and output generation at 2048 requested tokens. Its HTTP deadline is 25 seconds, within Core's default 30-second deadline; a shorter parent deadline or cancellation kills the process through the existing adapter. Direct bridge callers can also supply an AbortSignal. Servers may continue inference internally after disconnection; TaskStance cannot control their cancellation behavior.
+
+The response must be HTTP 200 with JSON content type and no compression, contain exactly one completed (`finish_reason: "stop"`) assistant message with JSON string content, and pass the existing strict response schema and all advertised choice domains (including probability keys). Invalid UTF-8, duplicate JSON members, prose, Markdown fences, truncation, refusals, tool calls, and oversized responses fail conservatively. Optional envelope metadata is ignored. Failures emit only a fixed unavailable protocol document; raw HTTP, prompt, model output, and schema diagnostics are discarded.
+
+The child still starts in the temporary directory with an empty environment and discarded stderr. Only the strict nonsensitive task and permitted choices are sent, alongside static format instructions and schema. Caller-authored summaries are not redacted. The trusted server may have its own logs: configure its privacy settings separately. The process boundary is not an OS sandbox.
+
+Run the deterministic local HTTP fixtures without a model server:
+
+```sh
+npx vitest run test/judgment-local.test.js test/judgment-reference.test.js test/judgment-process.test.ts
+npm run typecheck
+```
+
+These tests use temporary loopback HTTP servers and synthetic responses. They cover structured success, invalid/unsupported output, missing confidence/decisions, low confidence, unavailable servers, timeout, cancellation, size limits, endpoint restrictions, IPv6, deterministic safety overrides, and zero offline HTTP calls. No live inference or hosted requests are used.
