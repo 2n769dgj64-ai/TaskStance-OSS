@@ -263,7 +263,7 @@ describe("trusted executable resolution", () => {
     await expect(resolveTrustedExecutable("plain", trusted)).rejects.toThrow("absolute PATH entry");
   });
 
-  it("terminates Windows process trees through a fixed absolute taskkill path", () => {
+  it.runIf(process.platform === "win32")("terminates Windows process trees through a fixed absolute taskkill path", () => {
     expect(isAbsolute(windowsTaskkillPath())).toBe(true);
     expect(windowsTaskkillPath().toLowerCase().endsWith(join("System32", "taskkill.exe").toLowerCase())).toBe(true);
   });
