@@ -30,6 +30,7 @@
     "dist",
     "docs",
     "examples/codex",
+    "examples/judgment",
     "README.md",
     "LICENSE"
   ],
