@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "provider_id": "lm-studio-system-one",
+  "executors": ["primary", "replan"],
+  "executable": "node",
+  "cli_entrypoint": "C:/ABSOLUTE/PATH/TaskStance-OSS/examples/judgment/system-one-bridge.mjs",
+  "args": ["http://127.0.0.1:1234/v1/systemone", "REPLACE_WITH_LOADED_DECISION_MODEL_ID"],
+  "max_output_bytes": 262144
+}
