@@ -24,6 +24,10 @@
     "./integrations/judgment-process": {
       "types": "./dist/integrations/judgment-process.d.ts",
       "import": "./dist/integrations/judgment-process.js"
+    },
+    "./integrations/context-scoring-process": {
+      "types": "./dist/integrations/context-scoring-process.d.ts",
+      "import": "./dist/integrations/context-scoring-process.js"
     }
   },
   "files": [

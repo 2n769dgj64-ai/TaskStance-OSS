@@ -70,6 +70,8 @@ Phase 2.2 adds an optional **real Codex CLI executor** through `taskstance/integ
 
 Phase 2.3 adds optional advisory judgment through `taskstance/integrations/judgment-process`. Select it explicitly with `--judgment process --judgment-config judgment.local.json` on `plan` or `run`. It sends only the structured task and configured choice domains to one external process, then validates its response against the existing Core judgment contract. Without those flags, the CLI retains its offline behavior. See the [process protocol, configuration, and failure boundary](./docs/phase2-3.md).
 
+Phase 4 introduces a provider-neutral, opt-in [context scoring process adapter](./docs/context-scoring-process.md) for embedding applications. It sends candidate metadata only, verifies one score per optional candidate, and keeps deterministic mandatory-context retention and replan behavior. This is not yet wired to the CLI and has no built-in model, executor call or hosted inference.
+
 To connect your own advisory model, see [Bring Your Own Judgment Provider](./docs/bring-your-own-judgment-provider.md). It includes a working offline plan and a local reference bridge with explicit decision mappings for a future documented JEV or other provider connection. The bridge is a mock; real JEV connectivity is not implemented.
 
 Real execution requires explicit adapter selection:
