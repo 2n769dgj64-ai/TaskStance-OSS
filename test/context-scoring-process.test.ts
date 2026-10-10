@@ -74,9 +74,9 @@ it("fails without launching the process for incomplete discovery", async () => {
 
 it("rejects mandatory, unknown and duplicate direct-scoring candidate subsets", async () => {
   const scorer = adapter();
-  await expect(scorer.score(input, [candidates[0]])).rejects.toThrow();
-  await expect(scorer.score(input, [candidates[1], candidates[1]])).rejects.toThrow();
-  await expect(scorer.score(input, [{ ...candidates[1], id: "not-a-candidate" }])).rejects.toThrow();
+  await expect(scorer.score(input, [candidates[0]!])).rejects.toThrow();
+  await expect(scorer.score(input, [candidates[1]!, candidates[1]!])).rejects.toThrow();
+  await expect(scorer.score(input, [{ ...candidates[1]!, id: "not-a-candidate" }])).rejects.toThrow();
 });
 
 it("cancels an outstanding process and fails conservatively", async () => {
