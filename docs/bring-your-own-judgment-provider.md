@@ -38,7 +38,7 @@ The response has `schema_version: "1"`, `available`, and optional `decisions`. E
 
 The [reference bridge](../examples/judgment/reference-bridge.mjs) reuses the exported process request/response schemas. It explicitly maps every categorical field and probability key, preserves probability and confidence values and optional fields, and rejects unknown labels or choices outside the advertised domains. Its source labels and mock response are illustrative, **not a documented JEV format**.
 
-No JEV SDK, authentication flow, or verified JEV response mapping is integrated in this repository. To connect real JEV, supply public protocol documentation, an authorized credential mechanism compatible with the process boundary, and a verified response-to-Core mapping. Replace the mock call with one documented request, respecting cancellation and the parent deadline. Do not infer URLs or authentication from this example. Real JEV connectivity is not implemented or tested here.
+No hosted JEV SDK or authentication flow is integrated in this repository. The Phase 3 local bridge below maps the documented native System One protocol using an unauthenticated loopback service. Hosted JEV/TypeSafe connectivity still requires a separately designed authorized credential mechanism compatible with the process boundary and is not implemented or tested here. Do not infer hosted URLs or authentication from the reference mock.
 
 Embedding applications can instead implement the existing `JudgmentProvider.decide(task, signal?)` and inject it through `createDecisionRuntime`. Return a Core `RawJudgment` with `schema_version: "2"` and a configured provider identity, and honor the supplied signal. The CLI process wire version remains `1`; its adapter performs that conversion. Context scoring is a separate interface and remains unavailable in this CLI integration.
 
@@ -54,7 +54,7 @@ Use nonsensitive engineering summaries only; caller-authored text is not redacte
 
 ## Opt in to a real local chat model (Phase 2)
 
-The [local HTTP bridge](../examples/judgment/local-http-bridge.mjs) is a small Node.js 22 adapter for `POST /v1/chat/completions`. It uses the same process provider, wire schemas, CLI selection, deadlines, cancellation, and deterministic policy as the reference bridge. Core and offline defaults are unchanged. Ordinary chat models provide advisory judgment; they are not equivalent to specialized decision models such as JEV or its native decision capabilities. Real JEV-compatible System One integration is outside this phase.
+The [local HTTP bridge](../examples/judgment/local-http-bridge.mjs) is a small Node.js 22 adapter for `POST /v1/chat/completions`. It uses the same process provider, wire schemas, CLI selection, deadlines, cancellation, and deterministic policy as the reference bridge. Core and offline defaults are unchanged. Ordinary chat models provide advisory judgment; they are not equivalent to specialized decision models such as JEV or its native decision capabilities. Native System One is covered separately by Phase 3 below.
 
 Configure a trusted, already installed server with authentication disabled and an already installed **local** model that supports structured output. Bind it to loopback. Do not select a cloud model, remote worker, tunnel, or forwarding backend. No server installation, model download, discovery, credentials, or authentication is performed by TaskStance. The bridge cannot verify how a trusted local server internally processes or forwards a request; loopback validation bounds its own network destination only.
 
@@ -99,3 +99,64 @@ npm run typecheck
 ```
 
 These tests use temporary loopback HTTP servers and synthetic responses. They cover structured success, invalid/unsupported output, missing confidence/decisions, low confidence, unavailable servers, timeout, cancellation, size limits, endpoint restrictions, IPv6, deterministic safety overrides, and zero offline HTTP calls. No live inference or hosted requests are used.
+
+## Native System One local adapter (Phase 3)
+
+The optional [System One bridge](../examples/judgment/system-one-bridge.mjs) sends one native `POST /v1/systemone` request through the existing process integration. It is provider-neutral and requires no JEV SDK. TaskStance remains the deterministic policy and execution-control authority; System One and JEV provide advisory judgments. Real JEV/TypeSafe hosted API authentication is **not implemented**. No API keys, paid inference, discovery, retries, or provider/model switching are added.
+
+Load a compatible **decision model** in a trusted local server, such as LM Studio, and enable its unauthenticated loopback server. Ordinary chat models are not automatically System One-compatible. Use the exact loaded model identifier. See [LM Studio native System One](https://lmstudio.ai/docs/developer/jev-compat/systemone), the [native API response examples and limits](https://docs.system-one.dev/en/docs/api), and [Choice/Noul semantics](https://docs.system-one.dev/en/docs/primitives). The bridge implements native HTTP answers, not normalized SDK boolean answers or OpenAI chat completions.
+
+Start from the [LM Studio template](../examples/judgment/lm-studio-system-one.example.json). Replace the absolute bridge path and decision-model placeholder, and save as ignored `judgment.local.json`. Use the existing CLI selection:
+
+```sh
+npm ci
+npm run build
+node dist/cli.js init
+node dist/cli.js plan --task examples/judgment/task.json --judgment process --judgment-config judgment.local.json
+```
+
+Run `init` only if the project configuration is absent. The existing task is synthetic nonsensitive engineering input; no repository contents are submitted. Executor names must match your project configuration. On POSIX use an absolute POSIX bridge path; on Windows use the actual absolute Windows path. The process adapter launches TaskStance's own Node executable with an empty environment.
+
+### Native field mapping
+
+| Question ID / TaskStance dimension | Native question | Native answer → process decision |
+| --- | --- | --- |
+| `executor` | Choice over current `executors` | `choice` → `selected`; preserve `confidence` and `probabilities` |
+| `model_tier` | Choice over `model_tiers` | same |
+| `reasoning_effort` | Choice over `reasoning_efforts` | same |
+| `context_budget` | Choice over `context_budgets` | same |
+| `test_depth` | Choice over `test_depths` | same |
+| `review_depth` | Choice over `review_depths` | same |
+| `integration_strategy` | Choice over `integration_strategies` | same |
+| `parallel_safe` | Noul | `noul` → unchanged `probability_true`; `selected` is true only at P(true) ≥ 0.9 |
+
+The 0.9 threshold is an adapter policy, not a protocol-defined threshold or model confidence. Ambiguous and lower probabilities select false. Noul has no separate confidence; none is invented. Choice confidence is preserved independently of the selected option probability. Each Choice distribution must contain exactly the requested options, all finite in [0,1], summing to one within an absolute tolerance of 0.000001; values are not renormalized or rounded. Missing answers stay missing, so an incomplete execution profile triggers Core's conservative fallback. Unknown question IDs, wrong answer types, missing/invalid Choice confidence, invalid labels or distributions, malformed JSON and duplicate members (including escaped names) fail closed. Optional envelope/answer extensions are ignored and never copied to Core; model/usage metadata is not required or synthesized.
+
+The portable request subset requires 2–255 distinct, nonblank Choice labels, nonempty instructions, eight named questions, and structured non-null task state. Empty and singleton domains fail **before inference**, even on services that support singleton Choice; they are never widened. The fixed question IDs meet the documented name rules. The selected service/model may impose stricter limits or unsupported capabilities; a service rejection returns unavailable without another request. No model discovery is attempted. TaskStance Core schemas are unchanged.
+
+### Local boundaries and offline mode
+
+Only literal `http://127.0.0.1:<port>/v1/systemone` or `http://[::1]:<port>/v1/systemone`, ports 1–65535, are accepted. No DNS, remote URLs, credentials, queries, fragments, proxies or redirect following. Limits: 65536-byte stdin and HTTP request, 262144-byte HTTP response, 8192-byte response headers, JSON depth 32, and a 25-second HTTP deadline. Parent timeout/cancellation remains authoritative and terminates the existing process tree. The Phase 2 chat bridge deadline is unchanged. Failures emit only a fixed unavailable document; raw task/model/error diagnostics are not logged.
+
+Use nonsensitive engineering summaries only; caller text is not redacted. The local server is trusted and can log or forward requests elsewhere: TaskStance cannot guarantee that it remains local internally. Configure its privacy settings and local backend yourself. A disconnected server may continue inference. The process boundary is not an OS sandbox.
+
+For offline mode, omit both judgment flags:
+
+```sh
+node dist/cli.js plan --task examples/judgment/task.json
+```
+
+This makes zero HTTP requests. Deterministic pre-policy skips also make zero requests. Default security/destructive floors and low-confidence handling continue to override valid advice.
+
+### Opt-in real local smoke test (manual only)
+
+The configured `plan` command above is a **real inference request** when you explicitly opt in. Run it once only after loading your compatible decision model and checking that the backend is local. Expect `provider+policy` for complete valid advice or conservative fallback/replan for unsupported, unavailable, incomplete or low-confidence advice. This demonstrates protocol compatibility only, not decision quality or calibration. This phase's automated tests and implementation validation never run a real model or hosted API.
+
+Deterministic fixtures require no model server:
+
+```sh
+npx vitest run test/judgment-system-one.test.js test/judgment-local.test.js test/judgment-reference.test.js test/judgment-process.test.ts
+npm run typecheck
+npm run build
+npm run audit:prelaunch
+```
